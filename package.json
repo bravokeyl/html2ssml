@@ -1,0 +1,9 @@
+{
+  "name": "html2ssml",
+  "version": "0.0.0",
+  "description": "Converts HTML to SSML to use with voice based services(eg. Amazon Polly)",
+  "main": "index.js",
+  "repository": "https://github.com/bravokeyl/html2ssml",
+  "author": "bravokeyl",
+  "license": "MIT"
+}

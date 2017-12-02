@@ -6,11 +6,25 @@ const WPAPI = require( 'wpapi' );
 const wp = new WPAPI({ endpoint: 'https://wptavern.com/wp-json/' });
 const htmlToText = require('html-to-text');
 const splitAt = require('split-at');
+const s3 = new AWS.S3({apiVersion: '2006-03-01'});
 const Polly = new AWS.Polly({
     signatureVersion: 'v4',
     region: 'us-east-1'
 });
-
+const bukcetName = "PollyWPAudio";
+const putObjectToS3 = (key, body) => {
+  var params = {
+  Body: body,
+  Bucket: bukcetName,
+  Key: key,
+  ServerSideEncryption: "AES256",
+  Tagging: "Name=Test&Service=Polly"
+ };
+ s3.putObject(params, function(err, data) {
+   if (err) console.log(err, err.stack);
+   else     console.log(data);
+ });
+}
 const divideTextEnoughToBeHandleByPolly = (text) => {
   let len = parseInt(text.length/1000);
   let splitArr = [];
@@ -21,7 +35,7 @@ const divideTextEnoughToBeHandleByPolly = (text) => {
   return splitAt(text,splitArr);
 }
 
-const generatePollyAudio = (text, voiceId,index,fileName) => {
+const generatePollyAudio = (text, voiceId,index,fileName,e) => {
   const params = {
     Text: text,
     OutputFormat: 'mp3',
@@ -32,6 +46,7 @@ const generatePollyAudio = (text, voiceId,index,fileName) => {
     if (audio.AudioStream instanceof Buffer){
       let fn = fileName+"-"+index+".mp3";
       console.log("Creating audio file:",fileName," ...");
+      putObjectToS3(e.slug+"/"+e.id+"-"+index+".mp3",audio.AudioStream);
       fs.writeFile(fn, audio.AudioStream, function(err) {
           if (err) {
               return console.log(err)
@@ -46,19 +61,19 @@ const generatePollyAudio = (text, voiceId,index,fileName) => {
 }
 
 
-const audioBuffer = async (text,id,fileName) => {
+const audioBuffer = async (text,id,fileName,e) => {
   const voiceId = 'Brian';
   const parts = divideTextEnoughToBeHandleByPolly(text);
   console.log("File:",fileName,"is split into ", parts.length," parts");
   let audios = [];
   try {
     for(let [index,part] of parts.entries()){
-      audio = await generatePollyAudio(part, voiceId,index+1,fileName);
+      audio = await generatePollyAudio(part, voiceId,index+1,fileName,e);
       audios.push(audio);
     }
     const audioStreams = audios.map(a => a.AudioStream)
     const buf = Buffer.concat(audioStreams, audioStreams.reduce((len, a) => len + a.length, 0))
-
+    putObjectToS3(e.slug+"/"+e.id+".mp3",buf);
     fs.writeFile(fileName, buf, function(err) {
         if (err) {
             return console.log(err)
@@ -72,13 +87,14 @@ const audioBuffer = async (text,id,fileName) => {
 
 }
 
-const doPolly = (content,id,fileName) => {
+const doPolly = (content,id,fileName,e) => {
   const options = {
     ignoreHref: true,
     ignoreImage: true,
     noLinkBrackets: true,
   }
   const text = htmlToText.fromString(content, options);
+  putObjectToS3(e.slug+"/"+e.id+".txt",text);
   fs.writeFile(fileName+".txt", text, function(err) {
       if (err) {
           return console.log(err)
@@ -86,16 +102,16 @@ const doPolly = (content,id,fileName) => {
       // console.log("Text file was saved!")
   });
   console.log(text.length)
-  audioBuffer(text,id,fileName);
+  audioBuffer(text,id,fileName,e);
 }
 const processPost = (e) => {
   console.log(e.id,e.slug);
   let d = path.resolve(__dirname,"wp/"+e.slug)
   let fileName = d+"/"+e.id;
   mkdirp.sync(d);
-  doPolly(e.content.rendered,e.id,fileName)
+  doPolly(e.content.rendered,e.id,fileName,e)
 }
-wp.posts().perPage("1").get(function( err, data ) {
+wp.posts().perPage("10").get(function( err, data ) {
     if ( err ) {
       console.log(err)
     }

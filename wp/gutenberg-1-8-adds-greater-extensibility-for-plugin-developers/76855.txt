@@ -1,0 +1,41 @@
+Gutenberg 1.8 was released this week with several notable improvements that will
+give plugin developers more flexibility in extending the editor. It introduces 
+block templates, which developers can use when registering a new custom post
+type. The block templates define a set of pre-configured blocks that will
+initialize when a user creates a new post. In the example below, Gutenberg lead
+engineer Matias Ventura demonstrates what a block template for a book custom
+post type might look like.
+
+
+
+This release also improves the design of the tools menu (toggled by the ellipses
+at the top of the editor) to have a more lightweight UI that will lend itself
+better to displaying items added by extensions in the future. The new design
+displays multiple menu items as a radio group where the selected item shows a
+checkmark, an approach that Gutenberg designers found to be more intuitive after
+some research.
+
+
+
+Version 1.8 adds the ability for developers to filter allowed block types by
+specifying an array of type names that can be shown in the inserter component.
+This capability paves the way for block nesting where developers can define
+allowed children types. It also allows custom post types to specify which blocks
+are allowed or restricted, which will be useful for keeping CPTs lean as
+Gutenberg already has a large number of block types.
+
+The release also improves meta box compatibility with a fallback to the classic
+editor if Gutenberg detects that the meta box is unsupported. Plugin authors can
+now explicitly declare Gutenberg incompatibility when registering meta boxes,
+which will trigger a warning to the end user that explains which meta boxes have
+caused the fallback to the classic editor.
+
+In addition to all the improvements for extending Gutenberg, version 1.8 makes
+many small design tweaks, including updated color pickers with color indications
+and collapsible panels, updated icon and tooltip for table of contents menu, and
+a new contrast checker for paragraph color options. It also puts block actions
+back on the block level for the default, while still preserving the option to
+change it to a fixed toolbar at the top of the screen.
+
+For a full list of all the changes in version 1.8, check out the release post 
+and the changelog on WordPress.org.

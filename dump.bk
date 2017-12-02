@@ -1,0 +1,40 @@
+Legal SSML Headers:
+
+<?xml version="1.0"?>
+<speak version="1.1" xmlns="http://www.w3.org/2001/10/synthesis"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.w3.org/2001/10/synthesis
+                 http://www.w3.org/TR/speech-synthesis11/synthesis.xsd"
+       xml:lang="en-US">
+
+<?xml version="1.0"?>
+<speak version="1.1" xmlns="http://www.w3.org/2001/10/synthesis"
+       xml:lang="en-US">
+
+==========
+Amazon Polly supported tags:
+==========
+root
+
+<speak>
+
+standard tags
+
+<break>
+<lang>
+<mark>
+<p>
+<phoneme>
+<prosody>
+<s>
+<say-as>
+<sub>
+<w>
+
+Amazon Polly-specific tags
+
+<amazon:effect name="drc">
+<amazon:effect name="whispered">
+<amazon:effect vocal-tract-length>
+Note that any SSML tags in your input text that are unsupported are
+automatically ignored when Amazon Polly processes it.
